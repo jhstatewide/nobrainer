@@ -140,7 +140,8 @@ module NoBrainer::Criteria::Where
         # XXX max_results is not used, seems to be a workaround of rethinkdb index implemetnation.
         _ = options.delete(:max_results)
         RethinkDB::RQL.new.distance(lvalue, point.to_rql, options) <= max_dist
-      else lvalue.__send__(op, value)
+      else
+          lvalue.__send__(op, value)
       end
     end
 

@@ -1,6 +1,6 @@
 module NoBrainer::Document::Attributes
   VALID_FIELD_OPTIONS = [:index, :default, :type, :readonly, :primary_key, :lazy_fetch, :store_as,
-                         :validates, :required, :unique, :uniq, :format, :in, :length, :min_length, :max_length]
+                         :validates, :required, :unique, :uniq, :format, :in, :length, :min_length, :max_length, :localized]
   RESERVED_FIELD_NAMES = [:index, :default, :and, :or, :selector, :associations, :pk_value] \
                           + NoBrainer::Criteria::Where::OPERATORS
   extend ActiveSupport::Concern
@@ -115,9 +115,30 @@ module NoBrainer::Document::Attributes
     def _field(attr, options={})
       # Using a layer so the user can use super when overriding these methods
       attr = attr.to_s
+      puts "I am creating field: #{attr} with #{options}"
       inject_in_layer :attributes do
-        define_method("#{attr}=") { |value| _write_attribute(attr, value) }
-        define_method("#{attr}") { _read_attribute(attr) }
+        unless options[:localized]
+          define_method("#{attr}=") {|value| _write_attribute(attr, value) }
+          define_method("#{attr}") { _read_attribute(attr) }
+        else
+          define_method("#{attr}") do
+            locale_hash = _read_attribute(attr)
+            puts "I read back: #{locale_hash.inspect}"
+            locale_hash ||= {}
+            key = "#{attr}_#{I18n.locale}"
+            read_value = locale_hash[key]
+            puts "I got back #{read_value} from #{key}"
+            read_value
+          end
+          define_method("#{attr}_translations") { _read_attribute(attr) }
+          #define_method("#{attr}") { _read_attribute(attr) }
+          define_method("#{attr}=") do |value|
+            old_value = _read_attribute(attr) || {}
+            new_value = old_value.merge({"#{attr}_#{I18n.locale}" => value})
+            # puts "We want to write the new value: #{new_value.inspect}"
+            _write_attribute(attr, new_value)
+          end
+        end
       end
     end
 
