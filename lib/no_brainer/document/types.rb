@@ -98,10 +98,19 @@ module NoBrainer::Document::Types
     end
   end
 
+<<<<<<< HEAD
   %w(binary boolean text geo).each do |type|
     require File.join(File.dirname(__FILE__), 'types', type)
     const_set(type.camelize, NoBrainer.const_get(type.camelize))
   end
+=======
+  require File.join(File.dirname(__FILE__), 'types', 'binary')
+  require File.join(File.dirname(__FILE__), 'types', 'boolean')
+  require File.join(File.dirname(__FILE__), 'types', 'geo_point')
+  Binary = NoBrainer::Binary
+  Boolean = NoBrainer::Boolean
+  Point = NoBrainer::Geo::Point
+>>>>>>> 5c53417f81ae0de38e0be9d70df2b7b52934b3f5
 
   class << self
     mattr_accessor :loaded_extensions

@@ -8,4 +8,8 @@ coverage
 tmp
 tmp2
 tags
+<<<<<<< HEAD
 rethinkdb_data/
+=======
+.idea
+>>>>>>> 5c53417f81ae0de38e0be9d70df2b7b52934b3f5
