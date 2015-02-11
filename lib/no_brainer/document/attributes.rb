@@ -126,7 +126,7 @@ module NoBrainer::Document::Attributes
           end
           define_method("#{attr}_translations") { _read_attribute(attr) }
           define_method("#{attr}=") do |value|
-            _write_attribute(attr, (_read_attribute(attr) || {}).merge({"#{I18n.locale}" => value}))
+            _write_attribute(attr, (_read_attribute(attr) || {}).merge({I18n.locale => value}))
           end
           define_method("#{attr}_translations=") do |value|
             _write_attribute(attr, value)
