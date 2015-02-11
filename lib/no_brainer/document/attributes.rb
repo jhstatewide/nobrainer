@@ -115,28 +115,21 @@ module NoBrainer::Document::Attributes
     def _field(attr, options={})
       # Using a layer so the user can use super when overriding these methods
       attr = attr.to_s
-      puts "I am creating field: #{attr} with #{options}"
       inject_in_layer :attributes do
         unless options[:localized]
           define_method("#{attr}=") {|value| _write_attribute(attr, value) }
           define_method("#{attr}") { _read_attribute(attr) }
         else
+          raise 'I18n.locale must be defined!' unless I18n.locale
           define_method("#{attr}") do
-            locale_hash = _read_attribute(attr)
-            puts "I read back: #{locale_hash.inspect}"
-            locale_hash ||= {}
-            key = "#{attr}_#{I18n.locale}"
-            read_value = locale_hash[key]
-            puts "I got back #{read_value} from #{key}"
-            read_value
+            (_read_attribute(attr) || {})["#{I18n.locale}"]
           end
           define_method("#{attr}_translations") { _read_attribute(attr) }
-          #define_method("#{attr}") { _read_attribute(attr) }
           define_method("#{attr}=") do |value|
-            old_value = _read_attribute(attr) || {}
-            new_value = old_value.merge({"#{attr}_#{I18n.locale}" => value})
-            # puts "We want to write the new value: #{new_value.inspect}"
-            _write_attribute(attr, new_value)
+            _write_attribute(attr, (_read_attribute(attr) || {}).merge({"#{I18n.locale}" => value}))
+          end
+          define_method("#{attr}_translations=") do |value|
+            _write_attribute(attr, value)
           end
         end
       end
